@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Para Paolita</title>
+  <style>
+    :root{
+      --sun1:#ffd3a1;
+      --sun2:#fff0de;
+      --sun3:#ffe6c9;
+      --ink:#1a1a1a;
+      --muted:#6b4b2a;
+      --card:#ffffff;
+
+      --accent:#ff7a1a;
+      --accent2:#ffb020;
+      --accent3:#ff4d6d;
+
+      --shadow: 0 18px 55px rgba(0,0,0,.20);
+      --radius: 18px;
+      --max: 920px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--ink);
+      overflow-x:hidden;
+      background:
+        radial-gradient(1100px 700px at 18% 12%, rgba(255,255,255,.86), transparent 55%),
+        radial-gradient(1100px 700px at 88% 28%, rgba(255,255,255,.72), transparent 55%),
+        radial-gradient(1200px 900px at 55% 110%, rgba(255,122,26,.10), transparent 55%),
+        linear-gradient(180deg, var(--sun1), var(--sun2));
+    }
+
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 26px 14px 36px;
+      position:relative;
+    }
+
+    .blob{
+      position:absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 40%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,122,26,.25), rgba(255,176,32,.10) 60%, transparent 70%);
+      filter: blur(0.2px);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .blob.b1{ left: -90px; top: -70px; transform: rotate(18deg); }
+    .blob.b2{ right: -110px; top: 120px; transform: rotate(-12deg); }
+    .blob.b3{ left: 10%; bottom: -140px; transform: rotate(8deg); opacity:.65; }
+
+    .frame{
+      width: min(var(--max), 100%);
+      position: relative;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      background: rgba(255,255,255,.58);
+      border: 1px solid rgba(255,255,255,.92);
+      border-radius: 999px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.07);
+      user-select:none;
+    }
+    .badge .dot{
+      width:10px; height:10px;
+      border-radius:50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 0 6px rgba(255,122,26,.18);
+    }
+    .date{
+      color: rgba(26,26,26,.62);
+      font-size: 14px;
+      user-select:none;
+    }
+
+    .panel{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(255,255,255,.92);
+      box-shadow: 0 12px 30px rgba(0,0,0,.07);
+    }
+    .panel .hint{
+      font-size: 13px;
+      color: rgba(26,26,26,.62);
+      line-height: 1.35;
+    }
+
+    button{
+      border: 0;
+      cursor:pointer;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: .2px;
+      user-select:none;
+      transition: transform .12s ease, filter .12s ease;
+    }
+    button:active{ transform: translateY(1px) scale(.99); }
+
+    .primary{
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 14px 28px rgba(255,122,26,.22);
+    }
+    .primary:hover{ filter: brightness(1.02); }
+
+    .tinyControl{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap: wrap;
+    }
+
+    .chip{
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(26,26,26,.06);
+      border: 1px solid rgba(26,26,26,.08);
+      color: rgba(26,26,26,.72);
+      font-size: 13px;
+      user-select:none;
+    }
+
+    .stage{
+      display:grid;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .envelopeWrap{
+      display:flex;
+      justify-content:center;
+      padding: 8px 0 2px;
+    }
+
+    .envelope{
+      width: min(610px, 100%);
+      aspect-ratio: 16 / 10;
+      position: relative;
+      perspective: 1000px;
+      user-select:none;
+    }
+
+    .envBody{
+      position:absolute;
+      inset:0;
+      border-radius: 22px;
+      background:
+        radial-gradient(700px 260px at 16% 0%, rgba(255,122,26,.26), transparent 60%),
+        radial-gradient(520px 260px at 92% 22%, rgba(255,176,32,.26), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,255,255,.98));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      border: 1px solid rgba(26,26,26,.10);
+    }
+
+    .paws{
+      position:absolute;
+      inset:-20px;
+      opacity:.12;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(26,26,26,.28) 0 6px, transparent 7px),
+        radial-gradient(circle at 24% 24%, rgba(26,26,26,.24) 0 3px, transparent 4px),
+        radial-gradient(circle at 16% 24%, rgba(26,26,26,.24) 0 3px, transparent 4px),
+        radial-gradient(circle at 22% 18%, rgba(26,26,26,.24) 0 3px, transparent 4px),
+        radial-gradient(circle at 28% 22%, rgba(26,26,26,.24) 0 3px, transparent 4px);
+      background-size: 160px 160px;
+      transform: rotate(-8deg);
+    }
+
+    .flap{
+      position:absolute;
+      left:0; right:0;
+      top:0;
+      height: 58%;
+      transform-origin: top center;
+      transform: rotateX(0deg);
+      transition: transform .85s ease;
+      background:
+        linear-gradient(135deg, rgba(255,122,26,.14), rgba(255,176,32,.12)),
+        linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,255,255,.98));
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      border-top-left-radius: 22px;
+      border-top-right-radius: 22px;
+      border: 1px solid rgba(26,26,26,.10);
+      border-bottom: none;
+      box-shadow: 0 16px 28px rgba(0,0,0,.06);
+    }
+
+    .seal{
+      position:absolute;
+      left: 50%;
+      top: 54%;
+      transform: translate(-50%, -50%);
+      width: 62px;
+      height: 62px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(255,122,26,.28), rgba(255,176,32,.28));
+      border: 1px solid rgba(255,122,26,.34);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color: rgba(26,26,26,.78);
+      font-size: 20px;
+      box-shadow: 0 16px 30px rgba(255,122,26,.16);
+    }
+
+    .envLabel{
+      position:absolute;
+      left: 18px;
+      bottom: 18px;
+      right: 18px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      color: var(--ink);
+    }
+    .envLabel .to{
+      font-weight: 950;
+      font-size: clamp(16px, 2.3vw, 20px);
+      line-height: 1.1;
+    }
+    .envLabel .note{
+      color: rgba(26,26,26,.60);
+      font-size: 13px;
+      max-width: 42ch;
+      line-height: 1.35;
+      text-align:right;
+    }
+
+    .dingo{
+      position:absolute;
+      right: 22px;
+      top: 18px;
+      width: 94px;
+      height: 94px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(255,176,32,.34), rgba(255,122,26,.26));
+      border: 1px solid rgba(26,26,26,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 12px 25px rgba(0,0,0,.06);
+    }
+    .dingoFace{
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(26,26,26,.10);
+      position: relative;
+    }
+    .dingoFace:before, .dingoFace:after{
+      content:"";
+      position:absolute;
+      width: 15px;
+      height: 15px;
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(26,26,26,.10);
+      border-bottom: none;
+      border-right: none;
+      transform: rotate(45deg);
+      top: -6px;
+      border-top-left-radius: 4px;
+    }
+    .dingoFace:before{ left: 6px; }
+    .dingoFace:after{ right: 6px; }
+
+    .eyes{
+      position:absolute;
+      left: 0; right: 0;
+      top: 20px;
+      display:flex;
+      justify-content:space-evenly;
+    }
+    .eye{
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(26,26,26,.70);
+    }
+    .snout{
+      position:absolute;
+      left: 50%;
+      top: 29px;
+      transform: translateX(-50%);
+      width: 28px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(26,26,26,.06);
+      border: 1px solid rgba(26,26,26,.10);
+    }
+    .nose{
+      position:absolute;
+      left: 50%;
+      top: 4px;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(26,26,26,.70);
+    }
+
+    .envelope.open .flap{ transform: rotateX(165deg); }
+
+    .card{
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.92);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      opacity: 0;
+      transform: translateY(12px);
+      max-height: 0;
+      transition: opacity .7s ease, transform .7s ease, max-height .7s ease;
+    }
+    .card.show{
+      opacity:1;
+      transform: translateY(0);
+      max-height: 2600px;
+    }
+
+    .cover{
+      padding: 18px 18px 16px;
+      background:
+        radial-gradient(720px 280px at 16% 0%, rgba(255,122,26,.16), transparent 60%),
+        radial-gradient(540px 280px at 92% 22%, rgba(255,176,32,.18), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,255,255,.96));
+      border-bottom: 1px solid rgba(26,26,26,.10);
+    }
+
+    .cover h1{
+      margin: 0 0 6px;
+      font-size: clamp(22px, 3.2vw, 32px);
+      line-height: 1.15;
+      letter-spacing: .2px;
+    }
+    .cover p{
+      margin: 0;
+      color: rgba(26,26,26,.66);
+      line-height: 1.55;
+      font-size: 15px;
+      max-width: 72ch;
+    }
+
+    .body{
+      padding: 18px;
+      display:grid;
+      gap: 14px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      align-items:start;
+    }
+    @media (min-width: 860px){
+      .grid{
+        grid-template-columns: 1.1fr .9fr;
+        gap: 16px;
+      }
+    }
+
+    .paper{
+      background: rgba(255,255,255,.98);
+      border: 1px solid rgba(26,26,26,.10);
+      border-radius: 16px;
+      padding: 16px 14px;
+    }
+
+    .salute{
+      margin: 0 0 10px;
+      font-weight: 900;
+      font-size: 16px;
+    }
+    .msg{
+      margin:0;
+      color: rgba(26,26,26,.92);
+      line-height: 1.75;
+      font-size: 15.5px;
+      white-space: pre-wrap;
+    }
+
+    .signature{
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(26,26,26,.22);
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .from{
+      font-weight: 950;
+      line-height: 1.2;
+    }
+    .small{
+      margin-top: 4px;
+      color: rgba(26,26,26,.62);
+      font-size: 13px;
+    }
+
+    .photoBox{
+      background: rgba(255,255,255,.98);
+      border: 1px solid rgba(26,26,26,.10);
+      border-radius: 16px;
+      padding: 14px;
+      position: relative;
+      overflow:hidden;
+    }
+
+    .photoHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .photoHeader .title{
+      font-weight: 950;
+      font-size: 14px;
+    }
+    .photoHeader .counter{
+      color: rgba(26,26,26,.62);
+      font-size: 13px;
+    }
+
+    .photoStage{
+      width: 100%;
+      display:flex;
+      justify-content:center;
+      padding: 8px 0 2px;
+    }
+
+    .polaroid{
+      width: min(260px, 80%);
+      background: white;
+      border-radius: 14px;
+      padding: 10px 10px 12px;
+      box-shadow: 0 14px 30px rgba(0,0,0,.12);
+      border: 1px solid rgba(26,26,26,.10);
+      transform: rotate(-.6deg);
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .polaroid .imgWrap{
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      border-radius: 10px;
+      overflow:hidden;
+      background: rgba(26,26,26,.05);
+      border: 1px solid rgba(26,26,26,.08);
+      position: relative;
+    }
+
+    .polaroid img{
+      position:absolute;
+      inset:0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+      opacity: 0;
+      transform: scale(1.01);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .polaroid img.show{
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .caption{
+      margin-top: 10px;
+      color: rgba(26,26,26,.68);
+      font-size: 13px;
+      text-align:center;
+    }
+
+    .softBar{
+      margin-top: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .softBtn{
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(26,26,26,.06);
+      border: 1px solid rgba(26,26,26,.10);
+      color: rgba(26,26,26,.86);
+      font-weight: 900;
+      font-size: 13px;
+    }
+    .softBtn:hover{ filter: brightness(1.02); }
+    .softBtn:active{ transform: translateY(1px); }
+
+    .miniNote{
+      color: rgba(26,26,26,.62);
+      font-size: 12.5px;
+      line-height: 1.35;
+      margin-top: 10px;
+    }
+
+    .heart{
+      position: fixed;
+      left: 0; top: 0;
+      width: 14px; height: 14px;
+      transform: translate(-50%, -50%) rotate(45deg);
+      background: linear-gradient(135deg, var(--accent3), var(--accent));
+      border-radius: 3px;
+      opacity: .9;
+      pointer-events:none;
+      filter: drop-shadow(0 8px 18px rgba(255,77,109,.18));
+    }
+    .heart:before, .heart:after{
+      content:"";
+      position:absolute;
+      width: 14px; height: 14px;
+      background: inherit;
+      border-radius: 50%;
+    }
+    .heart:before{ left: -7px; top: 0; }
+    .heart:after{ left: 0; top: -7px; }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+
+    <div class="frame">
+      <div class="topbar">
+        <div class="badge">
+          <span class="dot"></span>
+          <span>Para Vania Paola Yana Quisbert</span>
+        </div>
+        <div class="date" id="today"></div>
+      </div>
+
+      <div class="panel">
+        <div class="tinyControl">
+          <button class="primary" id="openEnvelopeBtn">Abrir el sobre</button>
+          <span class="chip" id="audioState">Música: lista</span>
+        </div>
+        <div class="hint" id="stateText">
+          Al abrir el sobre, la música intentará sonar automáticamente.
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="envelopeWrap">
+          <div class="envelope" id="envelope" aria-label="Sobre">
+            <div class="envBody">
+              <div class="paws"></div>
+            </div>
+            <div class="flap"></div>
+
+            <div class="dingo" aria-hidden="true">
+              <div class="dingoFace">
+                <div class="eyes">
+                  <div class="eye"></div>
+                  <div class="eye"></div>
+                </div>
+                <div class="snout">
+                  <div class="nose"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="seal">❤</div>
+            <div class="envLabel">
+              <div class="to">Feliz San Valentín</div>
+              <div class="note">Una carta con fotos, música y cariño</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="card">
+          <div class="cover">
+            <h1>Feliz San Valentín, Payoyita</h1>
+            <p>
+              Te dejo una carta cálida, con recuerdos nuestros y una canción de fondo.
+            </p>
+          </div>
+
+          <div class="body">
+            <div class="grid">
+              <div class="paper">
+                <p class="salute">Vania Paola,</p>
+
+                <p class="msg" id="msg">
+Hoy quise darte algo sencillo y bien hecho: unas palabras claras para una persona importante(aunque no lo creas yo te quiero).
+
+Gracias por tu forma de acompañar. Por escuchar sin juzgar(aunque me critiques porque se que hago mal), por decir las cosas como son cuando hace falta y por estar en los días buenos y también en los pesados. Contigo se puede hablar en serio y también reírse sin esfuerzo.
+
+Me gusta nuestra amistad porque no exige actua. Simplemente está. Y eso vale más de lo que suele decirse.
+
+Te deseo un San Valentín tranquilo, bonito y a tu ritmo. Y que este año te traiga más momentos que te hagan sentir orgullosa de ti misma como yo lo estoy de ser tu Amigo.
+
+Con cariño,
+                </p>
+
+                <div class="signature">
+                  <div>
+                    <div class="from" id="fromName">Tu mejor amigo</div>
+                    <div class="small">Hecho especialmente para ti</div>
+                  </div>
+                  <div class="seal">❤</div>
+                </div>
+              </div>
+
+              <div class="photoBox">
+                <div class="photoHeader">
+                  <div class="title">Fotos</div>
+                  <div class="counter" id="counter">1 de 11</div>
+                </div>
+
+                <div class="photoStage">
+                  <div class="polaroid" id="polaroid" title="Toca para pasar a la siguiente foto">
+                    <div class="imgWrap" id="imgWrap"></div>
+                    <div class="caption" id="caption">Toca la foto para avanzar</div>
+                  </div>
+                </div>
+
+                <div class="softBar">
+                  <button class="softBtn" id="prevBtn" type="button">Anterior</button>
+                  <button class="softBtn" id="nextBtn" type="button">Siguiente</button>
+                </div>
+
+                <div class="miniNote">
+                  Avanza sola cada 4 segundos. Si tocas la foto, también pasa a la siguiente.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <audio id="song" preload="auto">
+        <source src="musica/musica.mp3" type="audio/mpeg">
+        Tu navegador no soporta audio.
+      </audio>
+    </div>
+  </div>
+
+  <script>
+    const d = new Date();
+    document.getElementById("today").textContent = d.toLocaleDateString("es-ES", {
+      year: "numeric", month: "long", day: "2-digit"
+    });
+
+    const envelope = document.getElementById("envelope");
+    const openEnvelopeBtn = document.getElementById("openEnvelopeBtn");
+    const card = document.getElementById("card");
+    const stateText = document.getElementById("stateText");
+    const audioState = document.getElementById("audioState");
+    const song = document.getElementById("song");
+
+    let opened = false;
+    let audioTried = false;
+
+    async function tryPlayAudio(){
+      if (audioTried) return;
+      audioTried = true;
+      try{
+        song.volume = 0.85;
+        await song.play();
+        audioState.textContent = "Música: sonando";
+      }catch(e){
+        audioState.textContent = "Música: bloqueada";
+        stateText.textContent = "Si no suena, toca una vez la pantalla y se habilita el audio.";
+      }
+    }
+
+    function spawnHearts(count){
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      for (let i = 0; i < count; i++){
+        const h = document.createElement("div");
+        h.className = "heart";
+
+        const x = Math.random() * window.innerWidth;
+        const y = window.innerHeight + 20 + Math.random() * 120;
+        h.style.left = x + "px";
+        h.style.top = y + "px";
+
+        const scale = 0.7 + Math.random() * 1.4;
+        h.style.transform = `translate(-50%, -50%) rotate(45deg) scale(${scale})`;
+        document.body.appendChild(h);
+
+        if (reduceMotion){
+          h.remove();
+          continue;
+        }
+
+        const duration = 1200 + Math.random() * 1500;
+        const drift = (Math.random() * 140) - 70;
+        const start = performance.now();
+
+        (function animate(t){
+          const p = Math.min(1, (t - start) / duration);
+          const ease = 1 - Math.pow(1 - p, 3);
+
+          h.style.top = (y - ease * (window.innerHeight + 260)) + "px";
+          h.style.left = (x + drift * ease) + "px";
+          h.style.opacity = (1 - p) * 0.95;
+
+          if (p < 1) requestAnimationFrame(animate);
+          else h.remove();
+        })(start);
+      }
+    }
+
+    openEnvelopeBtn.addEventListener("click", async () => {
+      opened = !opened;
+      envelope.classList.toggle("open", opened);
+      card.classList.toggle("show", opened);
+
+      openEnvelopeBtn.textContent = opened ? "Cerrar el sobre" : "Abrir el sobre";
+
+      if (opened){
+        stateText.textContent = "Carta abierta.";
+        spawnHearts(12);
+        await tryPlayAudio();
+      } else {
+        stateText.textContent = "Al abrir el sobre, la música intentará sonar automáticamente.";
+      }
+    });
+
+    document.addEventListener("pointerdown", async () => {
+      if (opened) await tryPlayAudio();
+    }, { once: false });
+
+    const photos = [
+      "fotos/01.jpeg","fotos/02.jpeg","fotos/03.jpeg","fotos/04.jpeg","fotos/05.jpeg","fotos/06.jpeg",
+      "fotos/07.jpeg","fotos/08.jpeg","fotos/09.jpeg","fotos/12.jpeg","fotos/11.jpeg"
+    ];
+
+    const imgWrap = document.getElementById("imgWrap");
+    const counter = document.getElementById("counter");
+    const polaroid = document.getElementById("polaroid");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    let idx = 0;
+    let timer = null;
+
+    function renderPhoto(newIndex){
+      idx = (newIndex + photos.length) % photos.length;
+      counter.textContent = (idx + 1) + " de " + photos.length;
+
+      const img = document.createElement("img");
+      img.src = photos[idx];
+      img.alt = "Foto " + (idx + 1);
+
+      const old = imgWrap.querySelector("img");
+      imgWrap.appendChild(img);
+
+      requestAnimationFrame(() => img.classList.add("show"));
+
+      if (old){
+        old.classList.remove("show");
+        setTimeout(() => old.remove(), 420);
+      }
+    }
+
+    function next(){ renderPhoto(idx + 1); }
+    function prev(){ renderPhoto(idx - 1); }
+
+    function startAuto(){
+      stopAuto();
+      timer = setInterval(() => {
+        if (opened) next();
+      }, 4000);
+    }
+
+    function stopAuto(){
+      if (timer) clearInterval(timer);
+      timer = null;
+    }
+
+    polaroid.addEventListener("click", () => {
+      next();
+      startAuto();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      next();
+      startAuto();
+    });
+
+    prevBtn.addEventListener("click", () => {
+      prev();
+      startAuto();
+    });
+
+    renderPhoto(0);
+    startAuto();
+
+    // Opcional: pon tu nombre
+    // document.getElementById("fromName").textContent = "Aida";
+  </script>
+</body>
+</html>
